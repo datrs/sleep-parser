@@ -5,5 +5,4 @@
 //! Parse [Dat protocol SLEEP
 //! files](https://github.com/datproject/docs/blob/master/papers/sleep.md).
 
-#[macro_use]
 extern crate nom;

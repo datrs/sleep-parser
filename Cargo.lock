@@ -20,7 +20,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "sleep-file-parser"
+name = "sleep-parser"
 version = "0.0.1"
 dependencies = [
  "nom 3.2.1 (registry+https://github.com/rust-lang/crates.io-index)",
