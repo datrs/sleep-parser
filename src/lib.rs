@@ -35,20 +35,21 @@ pub enum HashAlgorithm {
 
 /// Type of file.
 pub enum FileType {
-  BitField,
+  ///
+  Bitfield,
   Signatures,
   Tree,
 }
 
 /// SLEEP Protocol version.
-pub enum Version {
+pub enum ProtocolVersion {
   V0,
 }
 
 /// Struct representation of 32 byte SLEEP headers.
 pub struct Header {
   pub file_type: FileType,
-  pub version: Version,
+  pub protocol_version: ProtocolVersion,
   pub entry_size: u16,
   pub hash_algorithm: HashAlgorithm,
 }
@@ -81,7 +82,7 @@ impl Header {
     );
 
     let file_type = match buffer[3] {
-      0 => FileType::BitField,
+      0 => FileType::Bitfield,
       1 => FileType::Signatures,
       2 => FileType::Tree,
       num => bail!(format!(
@@ -90,10 +91,10 @@ impl Header {
       )),
     };
 
-    let version = match buffer[4] {
-      0 => Version::V0,
+    let protocol_version = match buffer[4] {
+      0 => ProtocolVersion::V0,
       num => bail!(format!(
-        "The byte '{}' does not belong to any known SLEEP protocol version",
+        "The byte '{}' does not belong to any known SLEEP protocol protocol_version",
         num
       )),
     };
@@ -117,7 +118,7 @@ impl Header {
     }
 
     Ok(Header {
-      version: version,
+      protocol_version: protocol_version,
       entry_size: entry_size,
       file_type: file_type,
       hash_algorithm: hash_algorithm,
