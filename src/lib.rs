@@ -20,25 +20,10 @@
 //!   <8 byte Uint64BE children leaf byte length>
 //! ```
 
-use std::error::Error;
-use std::io;
+#[macro_use]
+extern crate failure;
 
-macro_rules! bail {
-  ($msg: expr) => {
-    return Err(Box::new(io::Error::new(
-      io::ErrorKind::Other,
-      $msg,
-    )));
-  };
-}
-
-macro_rules! ensure {
-  ($cond: expr, $msg: expr) => {
-    if !($cond) {
-      bail!($msg);
-    }
-  };
-}
+use failure::Error;
 
 /// Algorithm used for hashing the data.
 pub enum HashAlgorithm {
@@ -77,7 +62,7 @@ impl Header {
   }
 
   /// Parse a 32 bit buffer slice into a valid Header.
-  pub fn from_vec(buffer: &[u8]) -> Result<Header, Box<Error>> {
+  pub fn from_vec(buffer: &[u8]) -> Result<Header, Error> {
     ensure!(
       buffer.len() == 32,
       "buffer should be at least 32 bytes"
