@@ -26,6 +26,7 @@ extern crate failure;
 use failure::Error;
 
 /// Algorithm used for hashing the data.
+#[derive(Debug)]
 pub enum HashAlgorithm {
   /// [BLAKE2b](https://blake2.net/) hashing algorithm.
   BLAKE2b,
@@ -34,6 +35,7 @@ pub enum HashAlgorithm {
 }
 
 /// Type of file.
+#[derive(Debug)]
 pub enum FileType {
   ///
   Bitfield,
@@ -42,11 +44,13 @@ pub enum FileType {
 }
 
 /// SLEEP Protocol version.
+#[derive(Debug)]
 pub enum ProtocolVersion {
   V0,
 }
 
 /// Struct representation of 32 byte SLEEP headers.
+#[derive(Debug)]
 pub struct Header {
   pub file_type: FileType,
   pub protocol_version: ProtocolVersion,
