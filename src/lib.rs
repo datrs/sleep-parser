@@ -98,11 +98,29 @@ impl Header {
       )),
     };
 
+    let entry_size = buffer[5] as u16 + (buffer[6] << 16) as u16;
+
+    let hash_name_len = buffer[7] as usize;
+    let hash_name_upper = 8 + hash_name_len;
+    let buf_slice = &buffer[8..hash_name_upper];
+    let algo = std::str::from_utf8(&buf_slice)
+      .expect("The algorithm string was invalid utf8 encoded");
+
+    let hash_algorithm = match algo {
+      "BLAKE2b" => HashAlgorithm::BLAKE2b,
+      "Ed25519" => HashAlgorithm::Ed25519,
+      _ => bail!(format!("The byte sequence '{:?}' does not belong to any known SLEEP hashing algorithm.", &buf_slice)),
+    };
+
+    for (index, byte) in (hash_name_upper..32).enumerate() {
+      ensure!(byte == 0, format!("The remainder of the header should be zero-filled. Found byte {} at position {}.", byte, index));
+    }
+
     Ok(Header {
       version: version,
-      entry_size: 40,
+      entry_size: entry_size,
       file_type: file_type,
-      hash_algorithm: HashAlgorithm::BLAKE2b,
+      hash_algorithm: hash_algorithm,
     })
   }
 
