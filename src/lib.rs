@@ -70,14 +70,14 @@ pub struct Header {
 
 impl Header {
   pub fn new(
-    tree_type: FileType,
-    entry_size: u16,
-    hash_algorithm: HashAlgorithm,
+    _tree_type: FileType,
+    _entry_size: u16,
+    _hash_algorithm: HashAlgorithm,
   ) {
   }
 
-  /// Parse a 32 bit buffer into a valid Header type.
-  pub fn from_vec(buffer: &Vec<u8>) -> Result<Header, Box<Error>> {
+  /// Parse a 32 bit buffer slice into a valid Header.
+  pub fn from_vec(buffer: &[u8]) -> Result<Header, Box<Error>> {
     ensure!(
       buffer.len() == 32,
       "buffer should be at least 32 bytes"
@@ -105,8 +105,16 @@ impl Header {
       )),
     };
 
+    let version = match buffer[4] {
+      0 => Version::V0,
+      num => bail!(format!(
+        "The byte '{}' does not belong to any known SLEEP protocol version",
+        num
+      )),
+    };
+
     Ok(Header {
-      version: Version::V0,
+      version: version,
       entry_size: 40,
       file_type: file_type,
       hash_algorithm: HashAlgorithm::BLAKE2b,
