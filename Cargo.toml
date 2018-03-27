@@ -8,4 +8,4 @@ description = "Parse Dat protocol SLEEP files"
 authors = ["Yoshua Wuyts <yoshuawuyts@gmail.com>"]
 
 [dependencies]
-nom = "3.2.1"
+combine = "3.0.0"
