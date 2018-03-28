@@ -35,6 +35,12 @@ pub enum HashAlgorithm {
 }
 
 /// Type of file.
+///
+/// `signatures`, `bitfield` and `tree` are the three SLEEP files. There are two
+///additional files, `key`, and `data`, which do not contain SLEEP file headers
+///and store plain serialized data for easy access. `key` stores the public key
+///that is described by the `signatures` file, and `data` stores the raw chunk
+///data that the `tree` file contains the hashes and metadata.
 #[derive(Debug)]
 pub enum FileType {
   /// The bitfield describes which pieces of data you have, and which nodes in
@@ -43,26 +49,39 @@ pub enum FileType {
   /// missing. This file can be regenerated if you delete it, so it is
   /// considered a materialized index.
   Bitfield,
+  /// A SLEEP formatted 32 byte header with data entries being 64 byte
+  /// signatures.
   Signatures,
+  /// A SLEEP formatted 32 byte header with data entries representing a
+  /// serialized Merkle tree based on the data in the data storage layer. All
+  /// the fixed size nodes written in in-order tree notation. The header
+  /// algorithm string for `tree` files is `BLAKE2b`. The entry size is 40
+  /// bytes.
   Tree,
 }
 
 /// SLEEP Protocol version.
 #[derive(Debug)]
 pub enum ProtocolVersion {
+  /// The version specified as per the paper released in 2017-09.
   V0,
 }
 
 /// Structural representation of 32 byte SLEEP headers.
 #[derive(Debug)]
 pub struct Header {
+  /// Type of file.
   pub file_type: FileType,
+  /// Version of the SLEEP protocol.
   pub protocol_version: ProtocolVersion,
+  /// Size of each piece of data in the file body.
   pub entry_size: u16,
+  /// Algorithm used for hashing the content.
   pub hash_algorithm: HashAlgorithm,
 }
 
 impl Header {
+  /// Create a new `Header`.
   pub fn new(
     _tree_type: FileType,
     _entry_size: u16,
