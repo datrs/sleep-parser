@@ -1,4 +1,4 @@
-// #![deny(warnings, missing_docs)]
+#![deny(missing_docs)]
 // #![cfg_attr(test, feature(plugin))]
 // #![cfg_attr(test, plugin(clippy))]
 
@@ -37,7 +37,11 @@ pub enum HashAlgorithm {
 /// Type of file.
 #[derive(Debug)]
 pub enum FileType {
-  ///
+  /// The bitfield describes which pieces of data you have, and which nodes in
+  /// the tree file have been written.  This file exists as an index of the tree
+  /// and data to quickly figure out which pieces of data you have or are
+  /// missing. This file can be regenerated if you delete it, so it is
+  /// considered a materialized index.
   Bitfield,
   Signatures,
   Tree,
@@ -49,7 +53,7 @@ pub enum ProtocolVersion {
   V0,
 }
 
-/// Struct representation of 32 byte SLEEP headers.
+/// Structural representation of 32 byte SLEEP headers.
 #[derive(Debug)]
 pub struct Header {
   pub file_type: FileType,
