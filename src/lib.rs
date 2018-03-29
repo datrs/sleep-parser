@@ -1,24 +1,6 @@
 #![deny(missing_docs)]
-// #![cfg_attr(test, feature(plugin))]
-// #![cfg_attr(test, plugin(clippy))]
-
-//! Parse [Dat protocol SLEEP
-//! files](https://github.com/datproject/docs/blob/master/papers/sleep.md).
-//!
-//! ## Format
-//!
-//! ```txt,ignore
-//! <32 byte header>
-//!   <4 byte magic string: 0x05025702>
-//!   <1 byte version number: 0>
-//!   <2 byte entry size: 40>
-//!   <1 byte algorithm name length prefix: 7>
-//!   <7 byte algorithm name: BLAKE2b>
-//!   <17 zeroes>
-//! <40 byte entries>
-//!   <32 byte BLAKE2b hash>
-//!   <8 byte Uint64BE children leaf byte length>
-//! ```
+#![feature(external_doc)]
+#![doc(include = "../README.md")]
 
 #[macro_use]
 extern crate failure;
@@ -91,10 +73,7 @@ impl Header {
 
   /// Parse a 32 bit buffer slice into a valid Header.
   pub fn from_vec(buffer: &[u8]) -> Result<Header, Error> {
-    ensure!(
-      buffer.len() == 32,
-      "buffer should be at least 32 bytes"
-    );
+    ensure!(buffer.len() == 32, "buffer should be at least 32 bytes");
     ensure!(
       buffer[0] == 5,
       "The first byte of a SLEEP header should be '5' (hex '0x05')"
