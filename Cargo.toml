@@ -1,6 +1,6 @@
 [package]
 name = "sleep-parser"
-version = "0.0.3"
+version = "0.0.4"
 license = "Apache-2.0"
 repository = "https://github.com/datrs/sleep-parser"
 documentation = "https://docs.rs/sleep-parser"
