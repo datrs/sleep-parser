@@ -6,7 +6,7 @@ use std::io::Cursor;
 
 /// Algorithm used for hashing the data.
 #[derive(Debug)]
-pub enum HashAlgorithm {
+pub enum HashType {
   /// [BLAKE2b](https://blake2.net/) hashing algorithm.
   BLAKE2b,
   /// [Ed25519](https://ed25519.cr.yp.to/) hashing algorithm.
@@ -56,16 +56,22 @@ pub struct Header {
   /// Size of each piece of data in the file body.
   pub entry_size: u16,
   /// Algorithm used for hashing the content.
-  pub hash_algorithm: HashAlgorithm,
+  pub hash_type: HashType,
 }
 
 impl Header {
   /// Create a new `Header`.
   pub fn new(
-    _tree_type: FileType,
-    _entry_size: u16,
-    _hash_algorithm: HashAlgorithm,
-  ) {
+    file_type: FileType,
+    entry_size: u16,
+    hash_type: HashType,
+  ) -> Self {
+    Header {
+      file_type,
+      entry_size,
+      hash_type,
+      protocol_version: ProtocolVersion::V0,
+    }
   }
 
   /// Parse a 32 bit buffer slice into a valid Header.
@@ -120,9 +126,9 @@ impl Header {
     let algo = ::std::str::from_utf8(&buf_slice)
       .expect("The algorithm string was invalid utf8 encoded");
 
-    let hash_algorithm = match algo {
-      "BLAKE2b" => HashAlgorithm::BLAKE2b,
-      "Ed25519" => HashAlgorithm::Ed25519,
+    let hash_type = match algo {
+      "BLAKE2b" => HashType::BLAKE2b,
+      "Ed25519" => HashType::Ed25519,
       _ => bail!(format!("The byte sequence '{:?}' does not belong to any known SLEEP hashing algorithm.", &buf_slice)),
     };
 
@@ -131,25 +137,16 @@ impl Header {
     }
 
     Ok(Header {
-      protocol_version: protocol_version,
-      entry_size: entry_size,
-      file_type: file_type,
-      hash_algorithm: hash_algorithm,
+      protocol_version,
+      entry_size,
+      file_type,
+      hash_type,
     })
   }
 
   /// Convert a `Header` into a `Vec<u8>`. Use this to persist a header back to
   /// disk.
-  pub fn to_vec(&self) {}
-}
-
-#[test]
-fn test() {
-  use std::fs::File;
-  use std::io::{BufRead, BufReader};
-
-  let file = File::open("README.md").unwrap();
-  let mut reader = BufReader::with_capacity(40, file);
-  let buffer = reader.fill_buf().unwrap();
-  println!("{:?}", buffer.len());
+  pub fn to_vec(&self) -> Header {
+    unimplemented!();
+  }
 }
