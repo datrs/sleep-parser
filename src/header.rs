@@ -1,4 +1,8 @@
+extern crate byteorder;
+
+use self::byteorder::{BigEndian, ReadBytesExt};
 use failure::Error;
+use std::io::Cursor;
 
 /// Algorithm used for hashing the data.
 #[derive(Debug)]
@@ -70,42 +74,49 @@ impl Header {
       buffer.len() == 32,
       "buffer should be at least 32 bytes"
     );
+
+    let mut rdr = Cursor::new(buffer);
     ensure!(
-      buffer[0] == 5,
+      rdr.read_u8().unwrap() == 5,
       "The first byte of a SLEEP header should be '5' (hex '0x05')"
     );
     ensure!(
-      buffer[1] == 2,
+      rdr.read_u8().unwrap() == 2,
       "The second byte of a SLEEP header should be '2' (hex '0x02')"
     );
     ensure!(
-      buffer[2] == 87,
+      rdr.read_u8().unwrap() == 87,
       "The third byte of a SLEEP header should be '87' (hex '0x57')"
     );
 
-    let file_type = match buffer[3] {
+    let file_type = match rdr.read_u8().unwrap() {
       0 => FileType::Bitfield,
       1 => FileType::Signatures,
       2 => FileType::Tree,
       num => bail!(format!(
-        "The byte '{}' does not belong to any known SLEEP file type",
+        "The fourth byte '{}' does not belong to any known SLEEP file type",
         num
       )),
     };
 
-    let protocol_version = match buffer[4] {
+    let protocol_version = match rdr.read_u8().unwrap() {
       0 => ProtocolVersion::V0,
       num => bail!(format!(
-        "The byte '{}' does not belong to any known SLEEP protocol protocol_version",
+        "The fifth byte '{}' does not belong to any known SLEEP protocol protocol_version",
         num
       )),
     };
 
-    let entry_size = buffer[5] as u16 + (buffer[6] << 16) as u16;
+    // Read entry size which will inform how many bytes to read next.
+    let entry_size = rdr.read_u16::<BigEndian>().unwrap();
 
-    let hash_name_len = buffer[7] as usize;
-    let hash_name_upper = 8 + hash_name_len;
-    let buf_slice = &buffer[8..hash_name_upper];
+    // Read out the "entry_size" bytes into a string.
+    // NOTE(yw): there should be a more concise way of doing this.
+    let hash_name_len = rdr.read_u8().unwrap() as usize;
+    let current = rdr.position() as usize;
+    let hash_name_upper = current + hash_name_len;
+    let buf_slice = &buffer[current..hash_name_upper];
+    rdr.set_position(hash_name_upper as u64);
     let algo = ::std::str::from_utf8(&buf_slice)
       .expect("The algorithm string was invalid utf8 encoded");
 
@@ -115,7 +126,7 @@ impl Header {
       _ => bail!(format!("The byte sequence '{:?}' does not belong to any known SLEEP hashing algorithm.", &buf_slice)),
     };
 
-    for (index, byte) in (hash_name_upper..32).enumerate() {
+    for (index, byte) in (rdr.position()..32).enumerate() {
       ensure!(byte == 0, format!("The remainder of the header should be zero-filled. Found byte {} at position {}.", byte, index));
     }
 
