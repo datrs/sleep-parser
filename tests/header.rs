@@ -8,7 +8,7 @@ fn new_header() {
 }
 
 #[test]
-fn from_vec() {
+fn from_vec_as_bitfield() {
   use std::fs::File;
   use std::io::{BufRead, BufReader};
 
