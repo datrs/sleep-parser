@@ -15,7 +15,6 @@ fn from_vec_as_bitfield() {
   let file = File::open("tests/fixtures/content.bitfield").unwrap();
   let mut reader = BufReader::with_capacity(32, file);
   let buffer = reader.fill_buf().unwrap();
-  let header = sp::Header::from_vec(&buffer);
-  println!("{:?}", header);
-  assert!(header.is_ok());
+  let header = sp::Header::from_vec(&buffer).unwrap();
+  assert!(header.is_bitfield());
 }

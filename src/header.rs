@@ -5,7 +5,7 @@ use failure::Error;
 use std::io::Cursor;
 
 /// Algorithm used for hashing the data.
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum HashType {
   /// [BLAKE2b](https://blake2.net/) hashing algorithm.
   BLAKE2b,
@@ -22,14 +22,14 @@ pub enum HashType {
 ///and store plain serialized data for easy access. `key` stores the public key
 ///that is described by the `signatures` file, and `data` stores the raw chunk
 ///data that the `tree` file contains the hashes and metadata.
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum FileType {
   /// The bitfield describes which pieces of data you have, and which nodes in
   /// the tree file have been written.  This file exists as an index of the tree
   /// and data to quickly figure out which pieces of data you have or are
   /// missing. This file can be regenerated if you delete it, so it is
   /// considered a materialized index.
-  Bitfield,
+  BitField,
   /// A SLEEP formatted 32 byte header with data entries being 64 byte
   /// signatures.
   Signatures,
@@ -109,7 +109,7 @@ impl Header {
     );
 
     let file_type = match rdr.read_u8().unwrap() {
-      0 => FileType::Bitfield,
+      0 => FileType::BitField,
       1 => FileType::Signatures,
       2 => FileType::Tree,
       num => bail!(format!(
@@ -163,5 +163,11 @@ impl Header {
   /// disk.
   pub fn to_vec(&self) -> Header {
     unimplemented!();
+  }
+
+  /// Check whether the header is formatted as a `.bitfield`.
+  pub fn is_bitfield(&self) -> bool {
+    self.entry_size == 3328 && self.file_type == FileType::BitField
+      && self.hash_type == HashType::None
   }
 }
