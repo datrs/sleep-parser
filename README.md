@@ -8,8 +8,22 @@ files](https://github.com/datproject/docs/blob/master/papers/sleep.md).
 - [Documentation][8]
 - [Crates.io][2]
 
-## Format
+## Usage
+```rust
+extern crate sleep_parser as sleep_parser;
 
+use sleep_parser::{FileType, HashType, Header};
+use std::fs::File;
+use std::io::{BufRead, BufReader};
+
+let file = File::open("tests/fixtures/content.bitfield").unwrap();
+let mut reader = BufReader::with_capacity(32, file);
+let buffer = reader.fill_buf().unwrap();
+let header = Header::from_vec(&buffer).unwrap();
+assert!(header.is_bitfield());
+```
+
+## Format
 ```txt,ignore
 <32 byte header>
   <4 byte magic string: 0x05025702>
