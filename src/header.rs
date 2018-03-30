@@ -11,6 +11,8 @@ pub enum HashType {
   BLAKE2b,
   /// [Ed25519](https://ed25519.cr.yp.to/) hashing algorithm.
   Ed25519,
+  /// No hashing used.
+  None,
 }
 
 /// Type of file.
@@ -76,23 +78,34 @@ impl Header {
 
   /// Parse a 32 bit buffer slice into a valid Header.
   pub fn from_vec(buffer: &[u8]) -> Result<Header, Error> {
-    ensure!(
-      buffer.len() == 32,
-      "buffer should be at least 32 bytes"
-    );
+    ensure!(buffer.len() == 32, "buffer should be 32 bytes");
 
     let mut rdr = Cursor::new(buffer);
+    let byte = rdr.read_u8().unwrap();
     ensure!(
-      rdr.read_u8().unwrap() == 5,
-      "The first byte of a SLEEP header should be '5' (hex '0x05')"
+      byte == 5,
+      format!(
+        "The first byte of a SLEEP header should be '5', found {}",
+        byte
+      )
     );
+
+    let byte = rdr.read_u8().unwrap();
     ensure!(
-      rdr.read_u8().unwrap() == 2,
-      "The second byte of a SLEEP header should be '2' (hex '0x02')"
+      byte == 2,
+      format!(
+        "The second byte of a SLEEP header should be '2', found {}",
+        byte
+      )
     );
+
+    let byte = rdr.read_u8().unwrap();
     ensure!(
-      rdr.read_u8().unwrap() == 87,
-      "The third byte of a SLEEP header should be '87' (hex '0x57')"
+      byte == 87,
+      format!(
+        "The third byte of a SLEEP header should be '87', found {}",
+        byte
+      )
     );
 
     let file_type = match rdr.read_u8().unwrap() {
@@ -120,20 +133,22 @@ impl Header {
     // NOTE(yw): there should be a more concise way of doing this.
     let hash_name_len = rdr.read_u8().unwrap() as usize;
     let current = rdr.position() as usize;
+
     let hash_name_upper = current + hash_name_len;
     let buf_slice = &buffer[current..hash_name_upper];
-    rdr.set_position(hash_name_upper as u64);
+    rdr.set_position(hash_name_upper as u64 + 1);
     let algo = ::std::str::from_utf8(&buf_slice)
       .expect("The algorithm string was invalid utf8 encoded");
 
     let hash_type = match algo {
       "BLAKE2b" => HashType::BLAKE2b,
       "Ed25519" => HashType::Ed25519,
-      _ => bail!(format!("The byte sequence '{:?}' does not belong to any known SLEEP hashing algorithm.", &buf_slice)),
+      _ => HashType::None,
     };
 
-    for (index, byte) in (rdr.position()..32).enumerate() {
-      ensure!(byte == 0, format!("The remainder of the header should be zero-filled. Found byte {} at position {}.", byte, index));
+    for index in rdr.position()..32 {
+      let byte = rdr.read_u8().unwrap();
+      ensure!(byte == 0, format!("The remainder of the header should be zero-filled. Found byte '{}' at position '{}'.", byte, index));
     }
 
     Ok(Header {
