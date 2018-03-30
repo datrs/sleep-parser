@@ -106,7 +106,7 @@ impl Header {
     let hash_name_len = buffer[7] as usize;
     let hash_name_upper = 8 + hash_name_len;
     let buf_slice = &buffer[8..hash_name_upper];
-    let algo = std::str::from_utf8(&buf_slice)
+    let algo = ::std::str::from_utf8(&buf_slice)
       .expect("The algorithm string was invalid utf8 encoded");
 
     let hash_algorithm = match algo {
