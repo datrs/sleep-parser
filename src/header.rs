@@ -178,7 +178,9 @@ impl Header {
     };
     wtr.write_u8(protocol_version).unwrap();
 
-    wtr.write_u16::<BigEndian>(self.entry_size).unwrap();
+    wtr
+      .write_u16::<BigEndian>(self.entry_size)
+      .unwrap();
 
     let hash_type = match self.hash_type {
       HashType::BLAKE2b => "BLAKE2b",
