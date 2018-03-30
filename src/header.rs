@@ -170,4 +170,10 @@ impl Header {
     self.entry_size == 3328 && self.file_type == FileType::BitField
       && self.hash_type == HashType::None
   }
+
+  /// Check whether the header is formatted as a `.signatures`.
+  pub fn is_signatures(&self) -> bool {
+    self.entry_size == 64 && self.file_type == FileType::Signatures
+      && self.hash_type == HashType::Ed25519
+  }
 }
