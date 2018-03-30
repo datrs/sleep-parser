@@ -43,7 +43,7 @@ $ cargo add sleep-parser
 ```
 
 ## License
-[MIT](./MIT) or [Apache-2.0](./APACHE)
+[MIT](./LICENSE-MIT) or [Apache-2.0](./LICENSE-APACHE)
 
 [1]: https://img.shields.io/crates/v/sleep-parser.svg?style=flat-square
 [2]: https://crates.io/crates/sleep-parser
