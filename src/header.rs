@@ -137,7 +137,7 @@ impl Header {
     let hash_name_upper = current + hash_name_len;
     let buf_slice = &buffer[current..hash_name_upper];
     rdr.set_position(hash_name_upper as u64 + 1);
-    let algo = ::std::str::from_utf8(&buf_slice)
+    let algo = ::std::str::from_utf8(buf_slice)
       .expect("The algorithm string was invalid utf8 encoded");
 
     let hash_type = match algo {
