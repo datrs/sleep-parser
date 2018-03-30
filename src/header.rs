@@ -176,4 +176,10 @@ impl Header {
     self.entry_size == 64 && self.file_type == FileType::Signatures
       && self.hash_type == HashType::Ed25519
   }
+
+  /// Check whether the header is formatted as a `.tree`.
+  pub fn is_tree(&self) -> bool {
+    self.entry_size == 40 && self.file_type == FileType::Tree
+      && self.hash_type == HashType::BLAKE2b
+  }
 }

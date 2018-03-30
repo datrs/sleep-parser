@@ -1,6 +1,6 @@
 extern crate sleep_parser as sp;
 
-use sp::{FileType, HashType, Header};
+use sp::{FileType, HashType};
 use std::fs::File;
 use std::io::{BufRead, BufReader};
 
@@ -25,4 +25,40 @@ fn from_vec_content_signatures() {
   let buffer = reader.fill_buf().unwrap();
   let header = sp::Header::from_vec(&buffer).unwrap();
   assert!(header.is_signatures());
+}
+
+#[test]
+fn from_vec_content_tree() {
+  let file = File::open("tests/fixtures/content.tree").unwrap();
+  let mut reader = BufReader::with_capacity(32, file);
+  let buffer = reader.fill_buf().unwrap();
+  let header = sp::Header::from_vec(&buffer).unwrap();
+  assert!(header.is_tree());
+}
+
+#[test]
+fn from_vec_metadata_bitfield() {
+  let file = File::open("tests/fixtures/metadata.bitfield").unwrap();
+  let mut reader = BufReader::with_capacity(32, file);
+  let buffer = reader.fill_buf().unwrap();
+  let header = sp::Header::from_vec(&buffer).unwrap();
+  assert!(header.is_bitfield());
+}
+
+#[test]
+fn from_vec_metadata_signatures() {
+  let file = File::open("tests/fixtures/metadata.signatures").unwrap();
+  let mut reader = BufReader::with_capacity(32, file);
+  let buffer = reader.fill_buf().unwrap();
+  let header = sp::Header::from_vec(&buffer).unwrap();
+  assert!(header.is_signatures());
+}
+
+#[test]
+fn from_vec_metadata_tree() {
+  let file = File::open("tests/fixtures/metadata.tree").unwrap();
+  let mut reader = BufReader::with_capacity(32, file);
+  let buffer = reader.fill_buf().unwrap();
+  let header = sp::Header::from_vec(&buffer).unwrap();
+  assert!(header.is_tree());
 }
