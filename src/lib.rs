@@ -73,7 +73,10 @@ impl Header {
 
   /// Parse a 32 bit buffer slice into a valid Header.
   pub fn from_vec(buffer: &[u8]) -> Result<Header, Error> {
-    ensure!(buffer.len() == 32, "buffer should be at least 32 bytes");
+    ensure!(
+      buffer.len() == 32,
+      "buffer should be at least 32 bytes"
+    );
     ensure!(
       buffer[0] == 5,
       "The first byte of a SLEEP header should be '5' (hex '0x05')"
