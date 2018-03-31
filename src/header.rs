@@ -1,6 +1,6 @@
 extern crate byteorder;
 
-use self::byteorder::{BigEndian, ReadBytesExt};
+use self::byteorder::{BigEndian, ReadBytesExt, WriteBytesExt};
 use failure::Error;
 use std::io::Cursor;
 
@@ -161,8 +161,40 @@ impl Header {
 
   /// Convert a `Header` into a `Vec<u8>`. Use this to persist a header back to
   /// disk.
-  pub fn to_vec(&self) -> Header {
-    unimplemented!();
+  pub fn to_vec(&self) -> Vec<u8> {
+    let mut wtr = Vec::with_capacity(32);
+
+    wtr.extend_from_slice(&[5u8, 2, 87]);
+
+    let file_type = match self.file_type {
+      FileType::BitField => 0,
+      FileType::Signatures => 1,
+      FileType::Tree => 2,
+    };
+    wtr.write_u8(file_type).unwrap();
+
+    let protocol_version = match self.protocol_version {
+      ProtocolVersion::V0 => 0,
+    };
+    wtr.write_u8(protocol_version).unwrap();
+
+    wtr
+      .write_u16::<BigEndian>(self.entry_size)
+      .unwrap();
+
+    let hash_type = match self.hash_type {
+      HashType::BLAKE2b => "BLAKE2b",
+      HashType::Ed25519 => "Ed25519",
+      HashType::None => "",
+    };
+    let hash_type = hash_type.as_bytes();
+    wtr.write_u8(hash_type.len() as u8).unwrap();
+    wtr.extend_from_slice(hash_type);
+
+    for _ in wtr.len()..wtr.capacity() {
+      wtr.write_u8(0).unwrap();
+    }
+    wtr
   }
 
   /// Check whether the header is formatted as a `.bitfield`.
