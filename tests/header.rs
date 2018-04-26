@@ -1,6 +1,6 @@
 extern crate sleep_parser;
 
-use sleep_parser::{FileType, HashType, Header};
+use sleep_parser::*;
 use std::fs::File;
 use std::io::{BufRead, BufReader};
 
