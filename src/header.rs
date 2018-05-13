@@ -76,7 +76,7 @@ impl Header {
     }
   }
 
-  /// Parse a 32 bit buffer slice into a valid Header.
+  /// Parse a 32 byte buffer slice into a valid Header.
   pub fn from_vec(buffer: &[u8]) -> Result<Header, Error> {
     ensure!(buffer.len() == 32, "buffer should be 32 bytes");
 
