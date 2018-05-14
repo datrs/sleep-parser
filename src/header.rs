@@ -2,6 +2,8 @@ extern crate byteorder;
 
 use self::byteorder::{BigEndian, ReadBytesExt, WriteBytesExt};
 use failure::Error;
+use nom;
+use parsers;
 use std::io::Cursor;
 
 /// Algorithm used for hashing the data.
@@ -42,14 +44,14 @@ pub enum FileType {
 }
 
 /// SLEEP Protocol version.
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum ProtocolVersion {
   /// The version specified as per the paper released in 2017-09.
   V0,
 }
 
 /// Structural representation of 32 byte SLEEP headers.
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct Header {
   /// Type of file.
   pub file_type: FileType,
@@ -74,6 +76,11 @@ impl Header {
       hash_type,
       protocol_version: ProtocolVersion::V0,
     }
+  }
+
+  /// Parses a 32 byte buffer slice into a valid Header.
+  pub fn from_bytes(buf: &[u8]) -> Result<Header, Error> {
+    convert_nom_result(buf, parsers::header(buf))
   }
 
   /// Parse a 32 byte buffer slice into a valid Header.
@@ -213,5 +220,38 @@ impl Header {
   pub fn is_tree(&self) -> bool {
     self.entry_size == 40 && self.file_type == FileType::Tree
       && self.hash_type == HashType::BLAKE2b
+  }
+}
+
+fn convert_nom_result(
+  buf: &[u8],
+  result: Result<(&[u8], Header), nom::Err<&[u8]>>,
+) -> Result<Header, Error> {
+  match result {
+    Ok((&[], h)) => Ok(h),
+    Ok((remaining, _)) => {
+      assert!(
+        buf.len() > parsers::HEADER_LENGTH,
+        "broken parser: input length is {}, but got unparsed input of length {}",
+        buf.len(),
+        remaining.len()
+      );
+      Err(format_err!("input must be {} bytes", parsers::HEADER_LENGTH))
+    }
+    Err(e @ nom::Err::Incomplete(_)) => {
+      assert!(
+        buf.len() < parsers::HEADER_LENGTH,
+        "broken parser: input length is {}, but got error: {:?}",
+        buf.len(),
+        e
+      );
+      Err(format_err!("input must be {} bytes", parsers::HEADER_LENGTH))
+    }
+    Err(nom::Err::Error(context)) => {
+      Err(format_err!("nom error: {:?}", context.into_error_kind()))
+    }
+    Err(nom::Err::Failure(context)) => {
+      Err(format_err!("nom failure: {:?}", context.into_error_kind()))
+    }
   }
 }

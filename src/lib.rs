@@ -5,8 +5,11 @@
 
 #[macro_use]
 extern crate failure;
+#[macro_use]
+extern crate nom;
 
 mod header;
+mod parsers;
 
 pub use header::*;
 
