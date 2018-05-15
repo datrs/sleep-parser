@@ -1,10 +1,9 @@
 extern crate byteorder;
 
-use self::byteorder::{BigEndian, ReadBytesExt, WriteBytesExt};
+use self::byteorder::{BigEndian, WriteBytesExt};
 use failure::Error;
 use nom;
 use parsers;
-use std::io::Cursor;
 
 /// Algorithm used for hashing the data.
 #[derive(Debug, PartialEq)]
@@ -84,86 +83,9 @@ impl Header {
   }
 
   /// Parse a 32 byte buffer slice into a valid Header.
+  #[deprecated(note = "Use from_bytes")]
   pub fn from_vec(buffer: &[u8]) -> Result<Header, Error> {
-    ensure!(buffer.len() == 32, "buffer should be 32 bytes");
-
-    let mut rdr = Cursor::new(buffer);
-    let byte = rdr.read_u8().unwrap();
-    ensure!(
-      byte == 5,
-      format!(
-        "The first byte of a SLEEP header should be '5', found {}",
-        byte
-      )
-    );
-
-    let byte = rdr.read_u8().unwrap();
-    ensure!(
-      byte == 2,
-      format!(
-        "The second byte of a SLEEP header should be '2', found {}",
-        byte
-      )
-    );
-
-    let byte = rdr.read_u8().unwrap();
-    ensure!(
-      byte == 87,
-      format!(
-        "The third byte of a SLEEP header should be '87', found {}",
-        byte
-      )
-    );
-
-    let file_type = match rdr.read_u8().unwrap() {
-      0 => FileType::BitField,
-      1 => FileType::Signatures,
-      2 => FileType::Tree,
-      num => bail!(format!(
-        "The fourth byte '{}' does not belong to any known SLEEP file type",
-        num
-      )),
-    };
-
-    let protocol_version = match rdr.read_u8().unwrap() {
-      0 => ProtocolVersion::V0,
-      num => bail!(format!(
-        "The fifth byte '{}' does not belong to any known SLEEP protocol protocol_version",
-        num
-      )),
-    };
-
-    // Read entry size which will inform how many bytes to read next.
-    let entry_size = rdr.read_u16::<BigEndian>().unwrap();
-
-    // Read out the "entry_size" bytes into a string.
-    // NOTE(yw): there should be a more concise way of doing this.
-    let hash_name_len = rdr.read_u8().unwrap() as usize;
-    let current = rdr.position() as usize;
-
-    let hash_name_upper = current + hash_name_len;
-    let buf_slice = &buffer[current..hash_name_upper];
-    rdr.set_position(hash_name_upper as u64 + 1);
-    let algo = ::std::str::from_utf8(buf_slice)
-      .expect("The algorithm string was invalid utf8 encoded");
-
-    let hash_type = match algo {
-      "BLAKE2b" => HashType::BLAKE2b,
-      "Ed25519" => HashType::Ed25519,
-      _ => HashType::None,
-    };
-
-    for index in rdr.position()..32 {
-      let byte = rdr.read_u8().unwrap();
-      ensure!(byte == 0, format!("The remainder of the header should be zero-filled. Found byte '{}' at position '{}'.", byte, index));
-    }
-
-    Ok(Header {
-      protocol_version,
-      entry_size,
-      file_type,
-      hash_type,
-    })
+    Header::from_bytes(buffer)
   }
 
   /// Convert a `Header` into a `Vec<u8>`. Use this to persist a header back to

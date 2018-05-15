@@ -16,49 +16,49 @@ fn read_header_bytes(file_name: &str) -> Result<[u8; 32], std::io::Error> {
 }
 
 #[test]
-fn from_vec_content_bitfield() {
+fn from_bytes_content_bitfield() {
   let buffer = read_header_bytes("tests/fixtures/content.bitfield").unwrap();
-  let header = Header::from_vec(&buffer).unwrap();
+  let header = Header::from_bytes(&buffer).unwrap();
   assert!(header.is_bitfield());
   assert_eq!(header.to_vec(), buffer);
 }
 
 #[test]
-fn from_vec_content_signatures() {
+fn from_bytes_content_signatures() {
   let buffer = read_header_bytes("tests/fixtures/content.signatures").unwrap();
-  let header = Header::from_vec(&buffer).unwrap();
+  let header = Header::from_bytes(&buffer).unwrap();
   assert!(header.is_signatures());
   assert_eq!(header.to_vec(), buffer);
 }
 
 #[test]
-fn from_vec_content_tree() {
+fn from_bytes_content_tree() {
   let buffer = read_header_bytes("tests/fixtures/content.tree").unwrap();
-  let header = Header::from_vec(&buffer).unwrap();
+  let header = Header::from_bytes(&buffer).unwrap();
   assert!(header.is_tree());
   assert_eq!(header.to_vec(), buffer);
 }
 
 #[test]
-fn from_vec_metadata_bitfield() {
+fn from_bytes_metadata_bitfield() {
   let buffer = read_header_bytes("tests/fixtures/metadata.bitfield").unwrap();
-  let header = Header::from_vec(&buffer).unwrap();
+  let header = Header::from_bytes(&buffer).unwrap();
   assert!(header.is_bitfield());
   assert_eq!(header.to_vec(), buffer);
 }
 
 #[test]
-fn from_vec_metadata_signatures() {
+fn from_bytes_metadata_signatures() {
   let buffer = read_header_bytes("tests/fixtures/metadata.signatures").unwrap();
-  let header = Header::from_vec(&buffer).unwrap();
+  let header = Header::from_bytes(&buffer).unwrap();
   assert!(header.is_signatures());
   assert_eq!(header.to_vec(), buffer);
 }
 
 #[test]
-fn from_vec_metadata_tree() {
+fn from_bytes_metadata_tree() {
   let buffer = read_header_bytes("tests/fixtures/metadata.tree").unwrap();
-  let header = Header::from_vec(&buffer).unwrap();
+  let header = Header::from_bytes(&buffer).unwrap();
   assert!(header.is_tree());
   assert_eq!(header.to_vec(), buffer);
 }
