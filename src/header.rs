@@ -64,6 +64,10 @@ pub struct Header {
 const HEADER_LENGTH: usize = 32;
 const MAX_ALGORITHM_NAME_LENGTH: usize = HEADER_LENGTH - 8;
 
+/// According to https://github.com/datproject/docs/blob/master/papers/sleep.md trailing bytes
+/// should be zeros, so garbage is probably fine too.
+const VERIFY_TRAILING_ZEROS: bool = false;
+
 impl Header {
   /// Create a new `Header`.
   pub fn new(
@@ -164,9 +168,11 @@ impl Header {
       _ => HashType::None,
     };
 
-    for index in rdr.position()..32 {
-      let byte = rdr.read_u8().unwrap();
-      ensure!(byte == 0, format!("The remainder of the header should be zero-filled. Found byte '{}' at position '{}'.", byte, index));
+    if VERIFY_TRAILING_ZEROS {
+      for index in rdr.position()..32 {
+        let byte = rdr.read_u8().unwrap();
+        ensure!(byte == 0, format!("The remainder of the header should be zero-filled. Found byte '{}' at position '{}'.", byte, index));
+      }
     }
 
     Ok(Header {
