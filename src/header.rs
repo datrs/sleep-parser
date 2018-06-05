@@ -61,6 +61,9 @@ pub struct Header {
   pub hash_type: HashType,
 }
 
+const HEADER_LENGTH: usize = 32;
+const MAX_ALGORITHM_NAME_LENGTH: usize = HEADER_LENGTH - 8;
+
 impl Header {
   /// Create a new `Header`.
   pub fn new(
@@ -134,11 +137,26 @@ impl Header {
     let hash_name_len = rdr.read_u8().unwrap() as usize;
     let current = rdr.position() as usize;
 
+    ensure!(
+      hash_name_len <= MAX_ALGORITHM_NAME_LENGTH,
+      "Algorithm name is too long: {} (max: {})",
+      hash_name_len,
+      MAX_ALGORITHM_NAME_LENGTH
+    );
+
     let hash_name_upper = current + hash_name_len;
+    ensure!(
+      buffer.len() >= hash_name_upper,
+      "Broken parser: algorithm name is out of bounds: {} {}",
+      hash_name_upper,
+      buffer.len()
+    );
+
     let buf_slice = &buffer[current..hash_name_upper];
     rdr.set_position(hash_name_upper as u64 + 1);
-    let algo = ::std::str::from_utf8(buf_slice)
-      .expect("The algorithm string was invalid utf8 encoded");
+    let algo = ::std::str::from_utf8(buf_slice).map_err(|e| {
+      format_err!("The algorithm string was invalid utf8 encoded: {:?}", e)
+    })?;
 
     let hash_type = match algo {
       "BLAKE2b" => HashType::BLAKE2b,
