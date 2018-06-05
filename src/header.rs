@@ -165,7 +165,8 @@ impl Header {
     let hash_type = match algo {
       "BLAKE2b" => HashType::BLAKE2b,
       "Ed25519" => HashType::Ed25519,
-      _ => HashType::None,
+      "" => HashType::None,
+      name => bail!("Unexpected algorithm name: {}", name),
     };
 
     if VERIFY_TRAILING_ZEROS {

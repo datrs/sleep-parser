@@ -85,3 +85,23 @@ fn issue_3() {
   let data = b"\x05\x02W\x01\x00\x00\x00\x12\x12\x12\x00\x00S\xc3\xcf\x8a2\xcc\xd1\xce9\xc4K\x9343\x00602\xb5\x07";
   assert!(Header::from_vec(data).is_err());
 }
+
+#[test]
+fn invalid_algorithm() {
+  fn mk_header(prefix: &[u8]) -> [u8; 32] {
+    let mut h = [0u8; 32];
+    h[0..prefix.len()].clone_from_slice(prefix);
+    h
+  }
+
+  assert!(
+    Header::from_vec(&mk_header(b"\x05\x02W\x01\x00\x00\x28\x01B")).is_err()
+  );
+  assert!(
+    Header::from_vec(&mk_header(b"\x05\x02W\x01\x00\x00\x28\x01B")).is_err()
+  );
+  assert!(
+    Header::from_vec(b"\x05\x02W\x01\x00\x00\x28\x19BLAKE2bXXXXXXXXXXXXXXXXXX")
+      .is_err()
+  );
+}
