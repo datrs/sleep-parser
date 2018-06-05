@@ -91,46 +91,40 @@ impl Header {
     let byte = rdr.read_u8().unwrap();
     ensure!(
       byte == 5,
-      format!(
-        "The first byte of a SLEEP header should be '5', found {}",
-        byte
-      )
+      "The first byte of a SLEEP header should be '5', found {}",
+      byte
     );
 
     let byte = rdr.read_u8().unwrap();
     ensure!(
       byte == 2,
-      format!(
-        "The second byte of a SLEEP header should be '2', found {}",
-        byte
-      )
+      "The second byte of a SLEEP header should be '2', found {}",
+      byte
     );
 
     let byte = rdr.read_u8().unwrap();
     ensure!(
       byte == 87,
-      format!(
-        "The third byte of a SLEEP header should be '87', found {}",
-        byte
-      )
+      "The third byte of a SLEEP header should be '87', found {}",
+      byte
     );
 
     let file_type = match rdr.read_u8().unwrap() {
       0 => FileType::BitField,
       1 => FileType::Signatures,
       2 => FileType::Tree,
-      num => bail!(format!(
+      num => bail!(
         "The fourth byte '{}' does not belong to any known SLEEP file type",
         num
-      )),
+      ),
     };
 
     let protocol_version = match rdr.read_u8().unwrap() {
       0 => ProtocolVersion::V0,
-      num => bail!(format!(
+      num => bail!(
         "The fifth byte '{}' does not belong to any known SLEEP protocol protocol_version",
         num
-      )),
+      ),
     };
 
     // Read entry size which will inform how many bytes to read next.
@@ -172,7 +166,11 @@ impl Header {
     if VERIFY_TRAILING_ZEROS {
       for index in rdr.position()..32 {
         let byte = rdr.read_u8().unwrap();
-        ensure!(byte == 0, format!("The remainder of the header should be zero-filled. Found byte '{}' at position '{}'.", byte, index));
+        ensure!(
+          byte == 0,
+          "The remainder of the header should be zero-filled. Found byte '{}' at position '{}'.",
+          byte, index
+        );
       }
     }
 
