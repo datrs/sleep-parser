@@ -1,8 +1,9 @@
 extern crate byteorder;
 
-use self::byteorder::{BigEndian, ReadBytesExt, WriteBytesExt};
+use self::byteorder::{BigEndian, WriteBytesExt};
 use failure::Error;
-use std::io::Cursor;
+use nom;
+use parsers;
 
 /// Algorithm used for hashing the data.
 #[derive(Debug, PartialEq)]
@@ -42,14 +43,14 @@ pub enum FileType {
 }
 
 /// SLEEP Protocol version.
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum ProtocolVersion {
   /// The version specified as per the paper released in 2017-09.
   V0,
 }
 
 /// Structural representation of 32 byte SLEEP headers.
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct Header {
   /// Type of file.
   pub file_type: FileType,
@@ -76,87 +77,15 @@ impl Header {
     }
   }
 
-  /// Parse a 32 bit buffer slice into a valid Header.
+  /// Parses a 32 byte buffer slice into a valid Header.
+  pub fn from_bytes(buf: &[u8]) -> Result<Header, Error> {
+    convert_nom_result(buf, parsers::header(buf))
+  }
+
+  /// Parse a 32 byte buffer slice into a valid Header.
+  #[deprecated(note = "Use from_bytes")]
   pub fn from_vec(buffer: &[u8]) -> Result<Header, Error> {
-    ensure!(buffer.len() == 32, "buffer should be 32 bytes");
-
-    let mut rdr = Cursor::new(buffer);
-    let byte = rdr.read_u8().unwrap();
-    ensure!(
-      byte == 5,
-      format!(
-        "The first byte of a SLEEP header should be '5', found {}",
-        byte
-      )
-    );
-
-    let byte = rdr.read_u8().unwrap();
-    ensure!(
-      byte == 2,
-      format!(
-        "The second byte of a SLEEP header should be '2', found {}",
-        byte
-      )
-    );
-
-    let byte = rdr.read_u8().unwrap();
-    ensure!(
-      byte == 87,
-      format!(
-        "The third byte of a SLEEP header should be '87', found {}",
-        byte
-      )
-    );
-
-    let file_type = match rdr.read_u8().unwrap() {
-      0 => FileType::BitField,
-      1 => FileType::Signatures,
-      2 => FileType::Tree,
-      num => bail!(format!(
-        "The fourth byte '{}' does not belong to any known SLEEP file type",
-        num
-      )),
-    };
-
-    let protocol_version = match rdr.read_u8().unwrap() {
-      0 => ProtocolVersion::V0,
-      num => bail!(format!(
-        "The fifth byte '{}' does not belong to any known SLEEP protocol protocol_version",
-        num
-      )),
-    };
-
-    // Read entry size which will inform how many bytes to read next.
-    let entry_size = rdr.read_u16::<BigEndian>().unwrap();
-
-    // Read out the "entry_size" bytes into a string.
-    // NOTE(yw): there should be a more concise way of doing this.
-    let hash_name_len = rdr.read_u8().unwrap() as usize;
-    let current = rdr.position() as usize;
-
-    let hash_name_upper = current + hash_name_len;
-    let buf_slice = &buffer[current..hash_name_upper];
-    rdr.set_position(hash_name_upper as u64 + 1);
-    let algo = ::std::str::from_utf8(buf_slice)
-      .expect("The algorithm string was invalid utf8 encoded");
-
-    let hash_type = match algo {
-      "BLAKE2b" => HashType::BLAKE2b,
-      "Ed25519" => HashType::Ed25519,
-      _ => HashType::None,
-    };
-
-    for index in rdr.position()..32 {
-      let byte = rdr.read_u8().unwrap();
-      ensure!(byte == 0, format!("The remainder of the header should be zero-filled. Found byte '{}' at position '{}'.", byte, index));
-    }
-
-    Ok(Header {
-      protocol_version,
-      entry_size,
-      file_type,
-      hash_type,
-    })
+    Header::from_bytes(buffer)
   }
 
   /// Convert a `Header` into a `Vec<u8>`. Use this to persist a header back to
@@ -213,5 +142,38 @@ impl Header {
   pub fn is_tree(&self) -> bool {
     self.entry_size == 40 && self.file_type == FileType::Tree
       && self.hash_type == HashType::BLAKE2b
+  }
+}
+
+fn convert_nom_result(
+  buf: &[u8],
+  result: Result<(&[u8], Header), nom::Err<&[u8]>>,
+) -> Result<Header, Error> {
+  match result {
+    Ok((&[], h)) => Ok(h),
+    Ok((remaining, _)) => {
+      assert!(
+        buf.len() > parsers::HEADER_LENGTH,
+        "broken parser: input length is {}, but got unparsed input of length {}",
+        buf.len(),
+        remaining.len()
+      );
+      Err(format_err!("input must be {} bytes", parsers::HEADER_LENGTH))
+    }
+    Err(e @ nom::Err::Incomplete(_)) => {
+      assert!(
+        buf.len() < parsers::HEADER_LENGTH,
+        "broken parser: input length is {}, but got error: {:?}",
+        buf.len(),
+        e
+      );
+      Err(format_err!("input must be {} bytes", parsers::HEADER_LENGTH))
+    }
+    Err(nom::Err::Error(context)) => {
+      Err(format_err!("nom error: {:?}", context.into_error_kind()))
+    }
+    Err(nom::Err::Failure(context)) => {
+      Err(format_err!("nom failure: {:?}", context.into_error_kind()))
+    }
   }
 }
