@@ -8,3 +8,23 @@ pub enum HashType {
   /// No hashing used.
   None,
 }
+
+impl HashType {
+  /// Returns true if the hash is `BLAKE2b`
+  #[inline]
+  pub fn is_blake2b(&self) -> bool {
+    *self == HashType::BLAKE2b
+  }
+
+  /// Returns true if the hash is `Ed25519`
+  #[inline]
+  pub fn is_ed25519(&self) -> bool {
+    *self == HashType::Ed25519
+  }
+
+  /// Returns true if no hash function was used.
+  #[inline]
+  pub fn is_none(&self) -> bool {
+    *self == HashType::None
+  }
+}
