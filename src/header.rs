@@ -201,9 +201,7 @@ impl Header {
     };
     wtr.write_u8(protocol_version).unwrap();
 
-    wtr
-      .write_u16::<BigEndian>(self.entry_size)
-      .unwrap();
+    wtr.write_u16::<BigEndian>(self.entry_size).unwrap();
 
     let hash_type = match self.hash_type {
       HashType::BLAKE2b => "BLAKE2b",
@@ -222,19 +220,22 @@ impl Header {
 
   /// Check whether the header is formatted as a `.bitfield`.
   pub fn is_bitfield(&self) -> bool {
-    self.entry_size == 3328 && self.file_type == FileType::BitField
+    self.entry_size == 3328
+      && self.file_type == FileType::BitField
       && self.hash_type == HashType::None
   }
 
   /// Check whether the header is formatted as a `.signatures`.
   pub fn is_signatures(&self) -> bool {
-    self.entry_size == 64 && self.file_type == FileType::Signatures
+    self.entry_size == 64
+      && self.file_type == FileType::Signatures
       && self.hash_type == HashType::Ed25519
   }
 
   /// Check whether the header is formatted as a `.tree`.
   pub fn is_tree(&self) -> bool {
-    self.entry_size == 40 && self.file_type == FileType::Tree
+    self.entry_size == 40
+      && self.file_type == FileType::Tree
       && self.hash_type == HashType::BLAKE2b
   }
 }
