@@ -23,3 +23,23 @@ pub enum FileType {
   /// bytes.
   Tree,
 }
+
+impl FileType {
+  /// Returns true if the file is `BitField`
+  #[inline]
+  pub fn is_bitfield(&self) -> bool {
+    *self == FileType::BitField
+  }
+
+  /// Returns true if the file is `Signatures`
+  #[inline]
+  pub fn is_signatures(&self) -> bool {
+    *self == FileType::Signatures
+  }
+
+  /// Returns true if the file is `Tree`
+  #[inline]
+  pub fn is_tree(&self) -> bool {
+    *self == FileType::Tree
+  }
+}
