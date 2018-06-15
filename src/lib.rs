@@ -19,12 +19,11 @@ pub use file_type::FileType;
 pub use hash_type::HashType;
 pub use protocol_version::ProtocolVersion;
 
-const HEADER_LENGTH: usize = 32;
-const MAX_ALGORITHM_NAME_LENGTH: usize = HEADER_LENGTH - 8;
-
 /// According to https://github.com/datproject/docs/blob/master/papers/sleep.md trailing bytes
 /// should be zeros, so garbage is probably fine too.
 const VERIFY_TRAILING_ZEROS: bool = false;
+const HEADER_LENGTH: usize = 32;
+const MAX_ALGORITHM_NAME_LENGTH: usize = HEADER_LENGTH - 8;
 
 /// Structural representation of 32 byte SLEEP headers.
 #[derive(Debug)]
@@ -192,22 +191,22 @@ impl Header {
   /// Check whether the header is formatted as a `.bitfield`.
   pub fn is_bitfield(&self) -> bool {
     self.entry_size == 3328
-      && self.file_type == FileType::BitField
-      && self.hash_type == HashType::None
+      && self.file_type.is_bitfield()
+      && self.hash_type.is_none()
   }
 
   /// Check whether the header is formatted as a `.signatures`.
   pub fn is_signatures(&self) -> bool {
     self.entry_size == 64
-      && self.file_type == FileType::Signatures
-      && self.hash_type == HashType::Ed25519
+      && self.file_type.is_signatures()
+      && self.hash_type.is_ed25519()
   }
 
   /// Check whether the header is formatted as a `.tree`.
   pub fn is_tree(&self) -> bool {
     self.entry_size == 40
-      && self.file_type == FileType::Tree
-      && self.hash_type == HashType::BLAKE2b
+      && self.file_type.is_tree()
+      && self.hash_type.is_blake2b()
   }
 }
 
