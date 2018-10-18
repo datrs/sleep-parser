@@ -1,7 +1,20 @@
-#![deny(missing_docs)]
+#![forbid(unsafe_code, missing_debug_implementations, missing_docs)]
 #![cfg_attr(test, deny(warnings))]
-#![feature(external_doc)]
-#![doc(include = "../README.md")]
+
+//! ## Example
+//! ```rust
+//! extern crate sleep_parser as sleep_parser;
+//!
+//! use sleep_parser::{FileType, HashType, Header};
+//! use std::fs::File;
+//! use std::io::{BufRead, BufReader};
+//!
+//! let file = File::open("tests/fixtures/content.bitfield").unwrap();
+//! let mut reader = BufReader::with_capacity(32, file);
+//! let buffer = reader.fill_buf().unwrap();
+//! let header = Header::from_vec(&buffer).unwrap();
+//! assert!(header.is_bitfield());
+//! ```
 
 #[macro_use]
 extern crate failure;
