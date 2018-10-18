@@ -49,7 +49,7 @@ $ cargo add sleep-parser
 [2]: https://crates.io/crates/sleep-parser
 [3]: https://img.shields.io/travis/datrs/sleep-parser.svg?style=flat-square
 [4]: https://travis-ci.org/datrs/sleep-parser
-[5]: https://img.shields.io/crates/d/sleep-parser.svg?style=flat-square
+[5]: https://img.shields.io/crates/d/sleep-parser/master.svg?style=flat-square
 [6]: https://crates.io/crates/sleep-parser
-[7]: https://docs.rs/sleep-parser/badge.svg
+[7]: https://img.shields.io/badge/docs-latest-blue.svg?style=flat-square
 [8]: https://docs.rs/sleep-parser
