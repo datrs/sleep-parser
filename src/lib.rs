@@ -49,6 +49,7 @@ pub struct Header {
 
 impl Header {
   /// Create a new `Header`.
+  #[inline]
   pub fn new(
     file_type: FileType,
     entry_size: u16,
@@ -63,6 +64,7 @@ impl Header {
   }
 
   /// Parse a 32 byte buffer slice into a valid Header.
+  #[inline]
   pub fn from_vec(buffer: &[u8]) -> Result<Header, Error> {
     ensure!(buffer.len() == 32, "buffer should be 32 bytes");
 
@@ -163,6 +165,7 @@ impl Header {
 
   /// Convert a `Header` into a `Vec<u8>`. Use this to persist a header back to
   /// disk.
+  #[inline]
   pub fn to_vec(&self) -> Vec<u8> {
     let mut wtr = Vec::with_capacity(32);
 
@@ -198,6 +201,7 @@ impl Header {
   }
 
   /// Check whether the header is formatted as a `.bitfield`.
+  #[inline]
   pub fn is_bitfield(&self) -> bool {
     self.entry_size == 3328
       && self.file_type.is_bitfield()
@@ -205,6 +209,7 @@ impl Header {
   }
 
   /// Check whether the header is formatted as a `.signatures`.
+  #[inline]
   pub fn is_signatures(&self) -> bool {
     self.entry_size == 64
       && self.file_type.is_signatures()
@@ -212,6 +217,7 @@ impl Header {
   }
 
   /// Check whether the header is formatted as a `.tree`.
+  #[inline]
   pub fn is_tree(&self) -> bool {
     self.entry_size == 40
       && self.file_type.is_tree()
@@ -220,16 +226,19 @@ impl Header {
 }
 
 /// Create a new `Header` in the `Bitfield` configuration.
+#[inline]
 pub fn create_bitfield() -> Header {
   Header::new(FileType::BitField, 3328, HashType::None)
 }
 
 /// Create a new `Header` in the `Signatures` configuration.
+#[inline]
 pub fn create_signatures() -> Header {
   Header::new(FileType::Signatures, 64, HashType::Ed25519)
 }
 
 /// Create a new `Header` in the `Tree` configuration.
+#[inline]
 pub fn create_tree() -> Header {
   Header::new(FileType::Tree, 40, HashType::BLAKE2b)
 }
