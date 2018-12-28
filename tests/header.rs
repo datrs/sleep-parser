@@ -100,8 +100,8 @@ fn invalid_algorithm() {
   assert!(
     Header::from_vec(&mk_header(b"\x05\x02W\x01\x00\x00\x28\x01B")).is_err()
   );
-  assert!(
-    Header::from_vec(b"\x05\x02W\x01\x00\x00\x28\x19BLAKE2bXXXXXXXXXXXXXXXXXX")
-      .is_err()
-  );
+  assert!(Header::from_vec(
+    b"\x05\x02W\x01\x00\x00\x28\x19BLAKE2bXXXXXXXXXXXXXXXXXX"
+  )
+  .is_err());
 }

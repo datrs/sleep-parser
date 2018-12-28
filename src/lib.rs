@@ -16,21 +16,17 @@
 //! assert!(header.is_bitfield());
 //! ```
 
-#[macro_use]
-extern crate failure;
-extern crate byteorder;
-
 mod file_type;
 mod hash_type;
 mod protocol_version;
 
-use self::byteorder::{BigEndian, ReadBytesExt, WriteBytesExt};
-use failure::Error;
+use byteorder::{BigEndian, ReadBytesExt, WriteBytesExt};
+use failure::{bail, ensure, format_err, Error};
 use std::io::Cursor;
 
-pub use file_type::FileType;
-pub use hash_type::HashType;
-pub use protocol_version::ProtocolVersion;
+pub use crate::file_type::FileType;
+pub use crate::hash_type::HashType;
+pub use crate::protocol_version::ProtocolVersion;
 
 /// According to https://github.com/datproject/docs/blob/master/papers/sleep.md trailing bytes
 /// should be zeros, so garbage is probably fine too.

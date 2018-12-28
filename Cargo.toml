@@ -7,6 +7,7 @@ documentation = "https://docs.rs/sleep-parser"
 description = "Parse Dat protocol SLEEP files"
 authors = ["Yoshua Wuyts <yoshuawuyts@gmail.com>"]
 readme = "README.md"
+edition = "2018"
 
 [dependencies]
 failure = "0.1.1"
