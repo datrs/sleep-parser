@@ -1,3 +1,21 @@
+## 2018-12-28, Version 0.8.0
+### Commits
+- [[`f2fd8ba77a`](https://github.com/datrs/sleep-parser/commit/f2fd8ba77a73d1b6d3860f91f632013785c6a41b)] (cargo-release) version 0.8.0 (Yoshua Wuyts)
+- [[`5927b5e69b`](https://github.com/datrs/sleep-parser/commit/5927b5e69b52a620a2162b507d3b11cf1c67ae22)] remove trailing zero verification (#13) (Yoshua Wuyts)
+- [[`bb5cd2c9ba`](https://github.com/datrs/sleep-parser/commit/bb5cd2c9bada1f1f539ea5a8eb3fef2cb36e1a60)] inline parsing (#12) (Yoshua Wuyts)
+- [[`4544c57897`](https://github.com/datrs/sleep-parser/commit/4544c5789795125a0ec7dcf995798e2b4dc89d53)] edition 2018 (#11) (Yoshua Wuyts)
+- [[`fae3dece83`](https://github.com/datrs/sleep-parser/commit/fae3dece83818e1ccadcc083c09a27246b8449f9)] Update changelog (Yoshua Wuyts)
+
+### Stats
+```diff
+ CHANGELOG.md    | 24 ++++++++++++++++++++++++
+ Cargo.toml      |  3 ++-
+ src/lib.rs      | 37 ++++++++++++++-----------------------
+ tests/header.rs |  8 ++++----
+ 4 files changed, 44 insertions(+), 28 deletions(-)
+```
+
+
 ## 2018-10-18, Version 0.7.0
 ### Commits
 - [[`563b87b65f`](https://github.com/datrs/sleep-parser/commit/563b87b65f018f8ef5b70e8a18d03fe6e4663348)] (cargo-release) version 0.7.0 (Yoshua Wuyts)
